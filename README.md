@@ -14,21 +14,32 @@ dengan pembagian tugas yang jelas:
 ## Struktur file
 
 ```
-index.html          Landing page (+ floating chat bubble)
-login.html           Halaman masuk (email/password + Google)
+index.html            Landing page (+ tombol melayang Plato AI)
+login.html            Halaman masuk / onboarding (email/password + Google)
 register.html         Halaman daftar (email/password + Google)
-dashboard.html         Dashboard realtime (protected, perlu login, + floating chat bubble)
-aichat.html            Halaman chat SatriaKlengerAI + StreakPet Harian (protected)
-css/style.css          Tema burgundy gradient + semua styling
-js/firebase-config.js   Konfigurasi & inisialisasi Firebase (dipakai semua halaman)
-js/landing.js           Ubah tombol CTA & arah bubble landing jika user sudah login
-js/login.js             Logika login
-js/register.js          Logika daftar akun
-js/dashboard.js          Listener realtime ke /loadcell/live & /loadcell/history + chart
-js/gemini-config.js      Klien Gemini API multi-key dengan auto-failover
-js/aichat.js             Logika chat SatriaKlengerAI + hitung StreakPet harian
-js/user-profile.js       Sinkron profil user (termasuk photoURL Google) ke Firestore + render avatar
-asset/                   Icon Satria Klenger AI & Streak Path (flat/happy/sad)
+dashboard.html        Live: angka sesaat, rekam sesi, tare tampilan (perlu login)
+history.html          Riwayat: tren puncak, log sesi, 50 pembacaan sensor (perlu login)
+aichat.html           Plato AI: chat Gemini + tombol saran (perlu login)
+streak.html           Konsistensi: streak harian, maskot Satria, kalender (perlu login)
+profile.html          Pengaturan: akun, perangkat, satuan kg/lb, tema, keluar (perlu login)
+css/style.css         Tema "Quiet Paper" (terang kertas / gelap karbon) + semua styling
+js/theme.js           Ganti tema terang/gelap (disimpan di localStorage)
+js/units.js           Satuan tampilan kg/lb
+js/shell.js           Penjaga login, avatar, tombol keluar untuk halaman aplikasi
+js/live-data.js       Listener Realtime Database /loadcell/live & /loadcell/history (gram -> kg)
+js/sessions.js        Sesi rekaman, disimpan di Firestore users/{uid}.sessions
+js/streak.js          Logika streak harian, disimpan di Firestore users/{uid}.streak
+js/dashboard.js       Logika halaman Live
+js/history.js         Logika halaman Riwayat
+js/streakpage.js      Logika halaman Konsistensi
+js/profile.js         Logika halaman Pengaturan
+js/aichat.js          Logika chat Plato AI
+js/firebase-config.js Konfigurasi & inisialisasi Firebase (dipakai semua halaman)
+js/landing.js         Ubah tombol CTA & arah bubble landing jika user sudah login
+js/login.js, js/register.js  Logika masuk dan daftar
+js/gemini-config.js   Klien Gemini API multi-key dengan auto-failover
+js/user-profile.js    Sinkron profil user (termasuk photoURL Google) ke Firestore + render avatar
+asset/                Ikon Plato AI (plato-icon.svg), favicon, dan model 3D alat ukur
 meterrr/meterrr.ino      Kode firmware ESP32 (referensi struktur data)
 database.rules.json      Realtime Database security rules — khusus /loadcell (sudah di-deploy)
 firestore.rules          Firestore security rules — khusus /users/{uid} (sudah di-deploy)
@@ -129,7 +140,7 @@ fallback kalau tidak ada foto.
   50 data terakhir untuk grafik riwayat, min/max/rata-rata.
 
 Semua tampilan di web (dashboard, chart, konteks yang dikirim ke
-SatriaKlengerAI) **mengonversi nilai gram ini ke kg** (`/ 1000`) sebelum
+Plato AI) **mengonversi nilai gram ini ke kg** (`/ 1000`) sebelum
 ditampilkan — lihat fungsi `gramsToKg()` di `js/dashboard.js` dan
 `js/aichat.js`. Data mentah di database tetap gram (mengikuti satuan yang
 dipakai firmware ESP32); konversi hanya terjadi di sisi tampilan.
@@ -160,7 +171,7 @@ untuk terekspos publik** — itu adalah identifier proyek, bukan secret, dan
 keamanan sesungguhnya diatur lewat Security Rules & Authorized domains di
 atas.
 
-### API key Gemini (SatriaKlengerAI)
+### API key Gemini (Plato AI)
 
 `js/gemini-config.js` menyimpan **5 API key Gemini langsung di kode
 client-side**, dengan auto-failover: kalau key aktif kena limit/quota (HTTP

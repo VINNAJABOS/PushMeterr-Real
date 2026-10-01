@@ -120,7 +120,7 @@ export function mountScale(container, { frame = "all", initialWeight = 0, yaw: b
   rim.position.set(-1.6, 1.4, -1.4);
   const warm = new THREE.PointLight(0xf4f7f5, 4, 5);
   warm.position.set(1.4, 0.8, 1.6);
-  scene.add(key, rim, warm, new THREE.AmbientLight(0x1a2260, 0.6));
+  scene.add(key, rim, warm, new THREE.AmbientLight(0xdfe4f2, 0.55));
 
   const rig = new THREE.Group(); // rotasi drag + parallax
   scene.add(rig);

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Pengaturan | PushMetter</title>
+<link rel="icon" type="image/svg+xml" href="asset/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="js/theme.js"></script>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="app-body">
+<header class="app-navbar">
+  <div class="container">
+    <a href="index.html" class="brand" aria-label="PushMetter, ke beranda">pushmetter<span class="brand-dot">.</span></a>
+    <nav class="app-nav" aria-label="Navigasi aplikasi">
+      <a href="dashboard.html" class="nav-item"><span>Live</span><span class="nav-dot"></span></a>
+      <a href="history.html" class="nav-item"><span>Riwayat</span><span class="nav-dot"></span></a>
+      <a href="aichat.html" class="nav-item"><span>Plato AI</span><span class="nav-dot"></span></a>
+      <a href="streak.html" class="nav-item"><span>Konsistensi</span><span class="nav-dot"></span></a>
+    </nav>
+    <div class="user-chip">
+      <button type="button" class="theme-toggle" data-theme-toggle aria-label="Ganti tema terang atau gelap" aria-pressed="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="app-main">
+  <div class="container narrow">
+    <div class="page-head">
+      <h1>Pengaturan</h1>
+      <span class="label">Perangkat &amp; preferensi</span>
+    </div>
+
+    <div class="settings-user">
+      <div class="avatar" id="user-avatar">U</div>
+      <div>
+        <div class="name" id="user-name">&nbsp;</div>
+        <div class="email" id="user-email">&nbsp;</div>
+      </div>
+    </div>
+
+    <ul class="settings-list">
+      <li class="setting-row">
+        <div>
+          <div class="setting-title">Koneksi perangkat</div>
+          <div class="setting-sub">ESP32 · loadcell HX711</div>
+        </div>
+        <span class="setting-value">
+          <span class="status-indicator" id="device-dot"></span>
+          <span id="device-status" role="status">menunggu data</span>
+        </span>
+      </li>
+      <li class="setting-row">
+        <div>
+          <div class="setting-title">Satuan ukur</div>
+          <div class="setting-sub">Tampilan berat dan gaya</div>
+        </div>
+        <div class="seg" role="group" aria-label="Satuan ukur">
+          <button type="button" data-unit="kg" aria-pressed="true" class="is-on">kg</button>
+          <button type="button" data-unit="lb" aria-pressed="false">lb</button>
+        </div>
+      </li>
+      <li class="setting-row">
+        <div>
+          <div class="setting-title">Interval pembaruan</div>
+          <div class="setting-sub">Diatur di firmware ESP32</div>
+        </div>
+        <span class="setting-value">0,5 detik</span>
+      </li>
+      <li class="setting-row">
+        <div>
+          <div class="setting-title">Konsistensi harian</div>
+          <div class="setting-sub">Streak yang sedang berjalan</div>
+        </div>
+        <a class="setting-value" href="streak.html"><span id="streak-value">-</span>&nbsp;&rarr;</a>
+      </li>
+      <li class="setting-row">
+        <div>
+          <div class="setting-title">Tema visual</div>
+          <div class="setting-sub">Kertas terang atau karbon gelap</div>
+        </div>
+        <button type="button" class="text-btn" data-theme-toggle><span data-theme-label>Kertas terang</span> &middot; ganti</button>
+      </li>
+    </ul>
+
+    <button type="button" id="logout-btn" class="btn btn-outline btn-danger btn-block signout">Keluar</button>
+  </div>
+</main>
+
+<script type="module" src="js/profile.js"></script>
+</body>
+</html>

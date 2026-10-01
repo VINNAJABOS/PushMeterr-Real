@@ -2,10 +2,14 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>PushMetter | Solusi alat ukur tarikan berbasis IoT</title>
 <meta name="description" content="PushMetter mengembangkan alat ukur tarikan berbasis IoT beserta platform pemantauan web. Hasil pengukuran tampil langsung, tersimpan rapi, dan dapat diakses dari mana saja." />
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚖️</text></svg>" />
+<link rel="icon" type="image/svg+xml" href="asset/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="js/theme.js"></script>
 <link rel="stylesheet" href="css/style.css" />
 <link rel="preload" href="asset/3d/alat-ukur.glb" as="fetch" crossorigin />
 <script type="importmap">
@@ -19,10 +23,7 @@
 
 <header class="navbar">
   <div class="container">
-    <a href="index.html" class="brand">
-      <span class="brand-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7h5M14 7h5"/><path d="M5 7 2 13a3 3 0 0 0 6 0L5 7Z"/><path d="M19 7l-3 6a3 3 0 0 0 6 0l-3-6Z"/><path d="M7 21h10"/></svg></span>
-      PushMetter
-    </a>
+    <a href="index.html" class="brand" aria-label="PushMetter, ke beranda">pushmetter<span class="brand-dot">.</span></a>
     <nav class="nav-links" id="nav-links" aria-label="Navigasi utama">
       <a href="#beranda">Beranda</a>
       <a href="#tentang">Tentang kami</a>
@@ -32,9 +33,12 @@
       <a href="login.html" class="nav-login">Masuk</a>
     </nav>
     <div class="nav-actions">
-      <a href="register.html" id="nav-cta" class="btn btn-outline btn-sm">Daftar</a>
+      <button type="button" class="theme-toggle" data-theme-toggle aria-label="Ganti tema terang atau gelap" aria-pressed="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor"/></svg>
+      </button>
+      <a href="register.html" id="nav-cta" class="btn btn-primary btn-sm">Daftar</a>
       <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Buka menu" aria-expanded="false" aria-controls="nav-links">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 8h16M4 16h16"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg>
       </button>
     </div>
   </div>
@@ -42,22 +46,9 @@
 
 <main>
   <section class="hero" id="beranda">
-    <div class="stage-3d hero-stage" id="hero-stage" aria-label="Model 3D alat ukur tarikan PushMetter. Geser untuk memutar.">
-      <div class="stage-loader"><span></span></div>
-      <div class="hero-chip" title="Contoh tampilan, bukan data sensor">
-        <span class="hero-chip-num" id="hero-weight">62.40</span>
-        <span class="hero-chip-unit">kg</span>
-        <span class="hero-chip-tag">contoh tampilan</span>
-      </div>
-      <div class="stage-hint">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg>
-        Geser untuk memutar
-      </div>
-    </div>
-
-    <div class="container hero-inner">
+    <div class="container hero-grid">
       <div class="hero-copy">
-        <p class="hero-kicker">Teknologi pengukuran berbasis IoT</p>
+        <p class="label hero-kicker"><span class="label-index">01</span>Teknologi pengukuran berbasis IoT</p>
 
         <h1 class="hero-title">Pengukuran tarikan yang <em>presisi</em>, terhubung setiap saat</h1>
         <p class="hero-sub">
@@ -66,48 +57,42 @@
         </p>
 
         <div class="hero-actions">
-          <a href="#kontak" class="btn btn-light btn-icon">
-            <span class="btn-icon-box" aria-hidden="true">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>
-            </span>
-            <span>Hubungi kami</span>
-          </a>
+          <a href="#kontak" class="btn btn-primary">Hubungi kami</a>
           <a href="#solusi" class="text-link">Lihat solusi kami</a>
         </div>
       </div>
 
+      <div class="stage-3d hero-stage" id="hero-stage" role="img" aria-label="Model 3D alat ukur tarikan PushMetter. Geser untuk memutar.">
+        <div class="stage-loader"><span></span></div>
+        <div class="hero-chip" title="Contoh tampilan, bukan data sensor">
+          <span class="hero-chip-num" id="hero-weight">62.40</span>
+          <span class="hero-chip-unit">kg</span>
+          <span class="hero-chip-tag">contoh tampilan</span>
+        </div>
+        <div class="stage-hint">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg>
+          Geser untuk memutar
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
       <ol class="stepper" id="stepper" aria-label="Jelajahi profil perusahaan">
         <li class="step-tile">
-          <a href="#tentang">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-7h6v7"/></svg>
-            <span>Tentang kami</span>
-          </a>
+          <a href="#tentang"><small>01</small><span>Tentang kami</span></a>
           <div class="step-track"><i></i></div>
-          <small>01</small>
         </li>
         <li class="step-tile">
-          <a href="#solusi">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="13" height="10" rx="1.5"/><path d="M7 19h5M9.5 15v4"/><rect x="18" y="9" width="3" height="10" rx="1"/></svg>
-            <span>Solusi</span>
-          </a>
+          <a href="#solusi"><small>02</small><span>Solusi</span></a>
           <div class="step-track"><i></i></div>
-          <small>02</small>
         </li>
         <li class="step-tile">
-          <a href="#teknologi">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1"/></svg>
-            <span>Teknologi</span>
-          </a>
+          <a href="#teknologi"><small>03</small><span>Teknologi</span></a>
           <div class="step-track"><i></i></div>
-          <small>03</small>
         </li>
         <li class="step-tile">
-          <a href="#kontak">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-            <span>Kontak</span>
-          </a>
+          <a href="#kontak"><small>04</small><span>Kontak</span></a>
           <div class="step-track"><i></i></div>
-          <small>04</small>
         </li>
       </ol>
     </div>
@@ -115,44 +100,48 @@
 
   <!-- Tentang kami -->
   <section class="section about" id="tentang">
-    <div class="container split">
-      <div class="split-intro">
-        <h2>Alat ukur yang dibuat untuk dipakai setiap hari</h2>
-        <p>
-          PushMetter adalah pengembang perangkat ukur berbasis IoT. Kami menggabungkan
-          perangkat keras yang presisi dengan perangkat lunak yang sederhana, sehingga
-          hasil pengukuran tidak berhenti di alat, melainkan sampai ke layar Anda.
-        </p>
-        <p>
-          Produk pertama kami adalah alat ukur tarikan dengan sensor loadcell,
-          dilengkapi dashboard web dan asisten AI untuk membantu membaca hasilnya.
-        </p>
-      </div>
+    <div class="container">
+      <p class="section-label"><span class="label-index">01</span>Tentang kami</p>
+      <div class="split">
+        <div class="split-intro">
+          <h2>Alat ukur yang dibuat untuk dipakai setiap hari</h2>
+          <p>
+            PushMetter adalah pengembang perangkat ukur berbasis IoT. Kami menggabungkan
+            perangkat keras yang presisi dengan perangkat lunak yang sederhana, sehingga
+            hasil pengukuran tidak berhenti di alat, melainkan sampai ke layar Anda.
+          </p>
+          <p>
+            Produk pertama kami adalah alat ukur tarikan dengan sensor loadcell,
+            dilengkapi dashboard web dan asisten AI untuk membantu membaca hasilnya.
+          </p>
+        </div>
 
-      <dl class="profile-list">
-        <div>
-          <dt>Visi</dt>
-          <dd>Menjadikan data pengukuran fisik mudah diakses, akurat, dan berguna bagi siapa saja yang membutuhkannya.</dd>
-        </div>
-        <div>
-          <dt>Misi</dt>
-          <dd>Merancang alat ukur yang andal, menyajikan datanya secara langsung, dan terus menyempurnakannya berdasarkan kebutuhan pengguna.</dd>
-        </div>
-        <div>
-          <dt>Bidang kerja</dt>
-          <dd>Perangkat ukur IoT, platform pemantauan berbasis web, dan analisis data pengukuran.</dd>
-        </div>
-        <div>
-          <dt>Pendekatan</dt>
-          <dd>Rancangan sederhana, komponen terukur, dan antarmuka yang dapat dipahami tanpa pelatihan khusus.</dd>
-        </div>
-      </dl>
+        <dl class="profile-list">
+          <div>
+            <dt>Visi</dt>
+            <dd>Menjadikan data pengukuran fisik mudah diakses, akurat, dan berguna bagi siapa saja yang membutuhkannya.</dd>
+          </div>
+          <div>
+            <dt>Misi</dt>
+            <dd>Merancang alat ukur yang andal, menyajikan datanya secara langsung, dan terus menyempurnakannya berdasarkan kebutuhan pengguna.</dd>
+          </div>
+          <div>
+            <dt>Bidang kerja</dt>
+            <dd>Perangkat ukur IoT, platform pemantauan berbasis web, dan analisis data pengukuran.</dd>
+          </div>
+          <div>
+            <dt>Pendekatan</dt>
+            <dd>Rancangan sederhana, komponen terukur, dan antarmuka yang dapat dipahami tanpa pelatihan khusus.</dd>
+          </div>
+        </dl>
+      </div>
     </div>
   </section>
 
   <!-- Solusi -->
   <section class="section offer" id="solusi">
     <div class="container">
+      <p class="section-label"><span class="label-index">02</span>Solusi</p>
       <div class="section-head">
         <h2>Solusi kami</h2>
         <p>Empat layanan yang saling melengkapi, dari alat di tangan hingga laporan di layar.</p>
@@ -171,7 +160,7 @@
         </li>
         <li>
           <span class="offer-no">03</span>
-          <h3>Asisten SatriaKlengerAI</h3>
+          <h3>Asisten Plato AI</h3>
           <p>Asisten percakapan yang membantu pengguna memahami hasil pengukuran dan menjawab pertanyaan seputar kesehatan dan kebugaran.</p>
         </li>
         <li>
@@ -185,43 +174,47 @@
 
   <!-- Teknologi -->
   <section class="section tech" id="teknologi">
-    <div class="container split">
-      <div class="split-intro">
-        <h2>Dari sensor ke layar, tanpa perantara rumit</h2>
-        <p>
-          Seluruh proses berjalan otomatis. Anda tidak perlu memasang aplikasi tambahan,
-          cukup membuka website dan hasilnya sudah ada di sana.
-        </p>
-      </div>
+    <div class="container">
+      <p class="section-label"><span class="label-index">03</span>Teknologi</p>
+      <div class="split">
+        <div class="split-intro">
+          <h2>Dari sensor ke layar, tanpa perantara rumit</h2>
+          <p>
+            Seluruh proses berjalan otomatis. Anda tidak perlu memasang aplikasi tambahan,
+            cukup membuka website dan hasilnya sudah ada di sana.
+          </p>
+        </div>
 
-      <ol class="pipeline">
-        <li>
-          <span class="pipeline-dot" aria-hidden="true"></span>
-          <h3>Sensor loadcell</h3>
-          <p>Dua sensor menahan tarikan dan mengubahnya menjadi sinyal listrik yang sangat kecil namun konsisten.</p>
-        </li>
-        <li>
-          <span class="pipeline-dot" aria-hidden="true"></span>
-          <h3>Pengendali ESP32</h3>
-          <p>Membaca sinyal sensor dan mengirim hasilnya lewat WiFi. Pembaruan dilakukan setiap setengah detik.</p>
-        </li>
-        <li>
-          <span class="pipeline-dot" aria-hidden="true"></span>
-          <h3>Penyimpanan cloud</h3>
-          <p>Data disimpan di layanan cloud dan hanya dapat dibuka oleh pengguna yang sudah masuk ke akun.</p>
-        </li>
-        <li class="is-live">
-          <span class="pipeline-dot" aria-hidden="true"></span>
-          <h3>Dashboard web</h3>
-          <p>Menampilkan angka terkini beserta grafik riwayat, dan berganti sendiri tanpa perlu memuat ulang halaman.</p>
-        </li>
-      </ol>
+        <ol class="pipeline">
+          <li>
+            <span class="pipeline-dot" aria-hidden="true"></span>
+            <h3>Sensor loadcell</h3>
+            <p>Dua sensor menahan tarikan dan mengubahnya menjadi sinyal listrik yang sangat kecil namun konsisten.</p>
+          </li>
+          <li>
+            <span class="pipeline-dot" aria-hidden="true"></span>
+            <h3>Pengendali ESP32</h3>
+            <p>Membaca sinyal sensor dan mengirim hasilnya lewat WiFi. Pembaruan dilakukan setiap setengah detik.</p>
+          </li>
+          <li>
+            <span class="pipeline-dot" aria-hidden="true"></span>
+            <h3>Penyimpanan cloud</h3>
+            <p>Data disimpan di layanan cloud dan hanya dapat dibuka oleh pengguna yang sudah masuk ke akun.</p>
+          </li>
+          <li class="is-live">
+            <span class="pipeline-dot" aria-hidden="true"></span>
+            <h3>Dashboard web</h3>
+            <p>Menampilkan angka terkini beserta grafik riwayat, dan berganti sendiri tanpa perlu memuat ulang halaman.</p>
+          </li>
+        </ol>
+      </div>
     </div>
   </section>
 
   <!-- Keunggulan -->
   <section class="section merits" id="keunggulan">
     <div class="container">
+      <p class="section-label"><span class="label-index">04</span>Keunggulan</p>
       <div class="section-head">
         <h2>Mengapa PushMetter</h2>
       </div>
@@ -248,17 +241,20 @@
 
   <!-- Kontak -->
   <section class="section contact" id="kontak">
-    <div class="container contact-row">
-      <div class="contact-copy">
-        <h2>Mari bicarakan kebutuhan Anda</h2>
-        <p>
-          Ingin mencoba alat kami atau mendiskusikan kerja sama? Buat akun untuk
-          membuka dashboard, atau masuk jika Anda sudah terdaftar.
-        </p>
-      </div>
-      <div class="closing-actions">
-        <a href="register.html" id="hero-cta" class="btn btn-light">Buat akun</a>
-        <a href="login.html" class="btn btn-outline">Masuk</a>
+    <div class="container">
+      <p class="section-label"><span class="label-index">05</span>Kontak</p>
+      <div class="contact-row">
+        <div class="contact-copy">
+          <h2>Mari bicarakan kebutuhan Anda</h2>
+          <p>
+            Ingin mencoba alat kami atau mendiskusikan kerja sama? Buat akun untuk
+            membuka dashboard, atau masuk jika Anda sudah terdaftar.
+          </p>
+        </div>
+        <div class="closing-actions">
+          <a href="register.html" id="hero-cta" class="btn btn-primary">Buat akun</a>
+          <a href="login.html" class="btn btn-outline">Masuk</a>
+        </div>
       </div>
     </div>
   </section>
@@ -267,10 +263,7 @@
 <footer class="footer">
   <div class="container footer-grid">
     <div class="footer-about">
-      <div class="brand">
-        <span class="brand-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7h5M14 7h5"/><path d="M5 7 2 13a3 3 0 0 0 6 0L5 7Z"/><path d="M19 7l-3 6a3 3 0 0 0 6 0l-3-6Z"/><path d="M7 21h10"/></svg></span>
-        PushMetter
-      </div>
+      <a href="index.html" class="brand" aria-label="PushMetter, ke beranda">pushmetter<span class="brand-dot">.</span></a>
       <p>Pengembang alat ukur tarikan berbasis IoT dan platform pemantauannya.</p>
     </div>
     <nav class="footer-col" aria-label="Profil">
@@ -292,12 +285,11 @@
   </div>
 </footer>
 
-<a href="login.html" id="chat-bubble" class="chat-bubble" aria-label="Buka SatriaKlengerAI">
-  <img src="asset/satria-icon.png" alt="" />
+<a href="login.html" id="chat-bubble" class="chat-bubble" aria-label="Buka Plato AI" title="Plato AI">
+  <img src="asset/plato-icon.svg" alt="" />
 </a>
 
 <script type="module" src="js/landing.js"></script>
 <script type="module" src="js/landing3d.js"></script>
-<script type="module" src="js/layers3d.js"></script>
 </body>
 </html>

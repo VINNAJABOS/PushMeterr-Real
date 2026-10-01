@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Riwayat | PushMetter</title>
+<link rel="icon" type="image/svg+xml" href="asset/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="js/theme.js"></script>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="app-body">
+<header class="app-navbar">
+  <div class="container">
+    <a href="index.html" class="brand" aria-label="PushMetter, ke beranda">pushmetter<span class="brand-dot">.</span></a>
+    <nav class="app-nav" aria-label="Navigasi aplikasi">
+      <a href="dashboard.html" class="nav-item"><span>Live</span><span class="nav-dot"></span></a>
+      <a href="history.html" class="nav-item active" aria-current="page"><span>Riwayat</span><span class="nav-dot"></span></a>
+      <a href="aichat.html" class="nav-item"><span>Plato AI</span><span class="nav-dot"></span></a>
+      <a href="streak.html" class="nav-item"><span>Konsistensi</span><span class="nav-dot"></span></a>
+    </nav>
+    <div class="user-chip">
+      <div class="user-info">
+        <div class="name" id="user-name">&nbsp;</div>
+        <div class="email" id="user-email">&nbsp;</div>
+      </div>
+      <button type="button" class="theme-toggle" data-theme-toggle aria-label="Ganti tema terang atau gelap" aria-pressed="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor"/></svg>
+      </button>
+      <a href="profile.html" class="avatar" id="user-avatar" aria-label="Profil dan pengaturan">U</a>
+    </div>
+  </div>
+</header>
+
+<main class="app-main">
+  <div class="container narrow">
+    <div class="page-head">
+      <h1>Riwayat</h1>
+      <span class="label" id="total-sessions">0 sesi tercatat</span>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Rentang waktu">
+      <button type="button" class="tab" role="tab" aria-selected="false" data-range="today">Hari ini</button>
+      <button type="button" class="tab is-active" role="tab" aria-selected="true" data-range="week">Minggu</button>
+      <button type="button" class="tab" role="tab" aria-selected="false" data-range="month">Bulan</button>
+    </div>
+
+    <section class="history-block" aria-labelledby="trend-title">
+      <div class="block-head">
+        <h2 class="label" id="trend-title">Tren puncak mingguan</h2>
+        <span class="note" id="trend-note"></span>
+      </div>
+      <div class="trend-chart" id="trend-chart"></div>
+    </section>
+
+    <section class="history-block" aria-labelledby="log-title">
+      <div class="block-head">
+        <h2 class="label" id="log-title">Log sesi terbaru</h2>
+      </div>
+      <ul class="log-list" id="session-log"></ul>
+      <p class="empty-note" id="log-empty" hidden>Belum ada sesi. Tekan "Mulai sesi" di halaman <a class="text-link" href="dashboard.html">Live</a> untuk merekam.</p>
+    </section>
+
+    <section class="history-block" aria-labelledby="raw-title">
+      <div class="block-head">
+        <h2 class="label" id="raw-title">Pembacaan sensor terakhir</h2>
+        <span class="label">50 data</span>
+      </div>
+      <div class="raw-grid">
+        <div>
+          <div class="raw-chart" id="raw-chart"></div>
+          <p class="empty-note" id="raw-empty">Grafik muncul setelah ESP32 mengirim pembacaan pertamanya.</p>
+        </div>
+        <dl class="metric-rows" aria-label="Ringkasan 50 pembacaan terakhir">
+          <div><dt>Min</dt><dd><span id="min-value">-</span> <small data-unit-label>kg</small></dd></div>
+          <div><dt>Rata-rata</dt><dd><span id="avg-value">-</span> <small data-unit-label>kg</small></dd></div>
+          <div><dt>Maks</dt><dd><span id="max-value">-</span> <small data-unit-label>kg</small></dd></div>
+        </dl>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script type="module" src="js/history.js"></script>
+</body>
+</html>

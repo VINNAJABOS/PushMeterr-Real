@@ -2,55 +2,79 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Masuk | PushMetter</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚖️</text></svg>" />
+<link rel="icon" type="image/svg+xml" href="asset/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="js/theme.js"></script>
 <link rel="stylesheet" href="css/style.css" />
-<script type="importmap">
-{ "imports": {
-  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
-  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
-} }
-</script>
 </head>
 <body>
 
 <div class="auth-shell">
-  <div class="auth-card">
-    <a href="index.html" class="auth-back">&larr; Kembali ke beranda</a>
-    <div class="brand">
-      <span class="brand-mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7h5M14 7h5"/><path d="M5 7 2 13a3 3 0 0 0 6 0L5 7Z"/><path d="M19 7l-3 6a3 3 0 0 0 6 0l-3-6Z"/><path d="M7 21h10"/></svg></span>
-      PushMetter
+  <aside class="auth-aside">
+    <div>
+      <a href="index.html" class="brand" aria-label="PushMetter, ke beranda">pushmetter<span class="brand-dot">.</span></a>
+      <p class="label" style="margin-top:8px">Calibration suite</p>
     </div>
-    <h1>Masuk ke PushMetter</h1>
-    <p class="subtitle">Lanjutkan ke dashboard untuk melihat angka dari alat Anda.</p>
 
-    <div id="error-box" class="error-box"></div>
-
-    <form id="login-form" novalidate>
-      <div class="field">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="nama@email.com" required autocomplete="email" />
+    <div class="auth-mascot">
+      <svg class="onboard-mark" viewBox="0 0 140 140" aria-hidden="true">
+        <circle cx="70" cy="70" r="64" fill="none" stroke="currentColor" stroke-width="1.2" stroke-opacity="0.25" stroke-dasharray="2 3"/>
+        <circle class="mascot-line" cx="70" cy="70" r="54" stroke-width="1.5"/>
+        <path class="mascot-line" stroke-width="1.5" d="M70 8v8M70 124v8M8 70h8M124 70h8"/>
+        <path class="mascot-line" stroke-width="1" stroke-opacity="0.3" d="M64 70h12M70 64v12"/>
+        <circle class="mascot-accent" cx="70" cy="40" r="2.5"/>
+        <circle class="mascot-ink" cx="56" cy="68" r="2.5"/>
+        <circle class="mascot-ink" cx="84" cy="68" r="2.5"/>
+        <path class="mascot-line" stroke-width="1.5" d="M 62 86 Q 70 93 78 86"/>
+      </svg>
+      <div>
+        <h2>Baca kekuatanmu, dengan presisi.</h2>
+        <p class="auth-lede">Pembacaan loadcell langsung di browser, lengkap dengan riwayat dan asisten Plato AI.</p>
       </div>
-      <div class="field">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password" minlength="6" />
-      </div>
-      <button type="submit" id="submit-btn" class="btn btn-primary btn-block">Masuk</button>
-    </form>
+    </div>
 
-    <div class="divider">atau</div>
+    <p class="label">Alat ukur tarikan berbasis IoT</p>
+  </aside>
 
-    <button type="button" id="google-login" class="btn btn-google btn-block">
-      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.6 15.6 18.9 12.9 24 12.9c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 16 4 9.1 8.4 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-2 14.1-5.4l-6.5-5.5C29.4 34.8 26.8 36 24 36c-5.3 0-9.7-3.4-11.3-8.1l-6.6 5C9 39.6 15.9 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.6l6.5 5.5C39.9 37.3 44 31.6 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
-      Masuk dengan Google
-    </button>
+  <main class="auth-main">
+    <button type="button" class="theme-toggle auth-theme" data-theme-toggle aria-label="Ganti tema terang atau gelap" aria-pressed="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor"/></svg>
+      </button>
+    <div class="auth-card">
+      <a href="index.html" class="auth-back">&larr; Kembali ke beranda</a>
+      <h1>Masuk ke PushMetter</h1>
+      <p class="subtitle">Lanjutkan ke dashboard untuk melihat angka dari alat Anda.</p>
 
-    <p class="auth-switch">Belum punya akun? <a href="register.html">Daftar di sini</a></p>
-  </div>
+      <div id="error-box" class="error-box" role="alert"></div>
+
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="nama@email.com" required autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password" minlength="6" />
+        </div>
+        <button type="submit" id="submit-btn" class="btn btn-primary btn-block">Masuk</button>
+      </form>
+
+      <div class="divider">atau</div>
+
+      <button type="button" id="google-login" class="btn btn-google btn-block">
+        <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.6 15.6 18.9 12.9 24 12.9c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 16 4 9.1 8.4 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-2 14.1-5.4l-6.5-5.5C29.4 34.8 26.8 36 24 36c-5.3 0-9.7-3.4-11.3-8.1l-6.6 5C9 39.6 15.9 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.6l6.5 5.5C39.9 37.3 44 31.6 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
+        Masuk dengan Google
+      </button>
+
+      <p class="auth-switch">Belum punya akun? <a href="register.html">Daftar di sini</a></p>
+    </div>
+  </main>
 </div>
 
 <script type="module" src="js/login.js"></script>
-<script type="module" src="js/layers3d.js"></script>
 </body>
 </html>

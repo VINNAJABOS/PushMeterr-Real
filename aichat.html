@@ -2,81 +2,83 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SatriaKlengerAI | PushMetter</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚖️</text></svg>" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Plato AI | PushMetter</title>
+<link rel="icon" type="image/svg+xml" href="asset/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="js/theme.js"></script>
 <link rel="stylesheet" href="css/style.css" />
-<script type="importmap">
-{ "imports": {
-  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
-  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
-} }
-</script>
 </head>
-<body class="dash-body">
-
-<header class="dash-navbar">
+<body class="app-body">
+<header class="app-navbar">
   <div class="container">
-    <a href="dashboard.html" class="brand">
-      <span class="brand-mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7h5M14 7h5"/><path d="M5 7 2 13a3 3 0 0 0 6 0L5 7Z"/><path d="M19 7l-3 6a3 3 0 0 0 6 0l-3-6Z"/><path d="M7 21h10"/></svg></span>
-      PushMetter
-    </a>
+    <a href="index.html" class="brand" aria-label="PushMetter, ke beranda">pushmetter<span class="brand-dot">.</span></a>
+    <nav class="app-nav" aria-label="Navigasi aplikasi">
+      <a href="dashboard.html" class="nav-item"><span>Live</span><span class="nav-dot"></span></a>
+      <a href="history.html" class="nav-item"><span>Riwayat</span><span class="nav-dot"></span></a>
+      <a href="aichat.html" class="nav-item active" aria-current="page"><span>Plato AI</span><span class="nav-dot"></span></a>
+      <a href="streak.html" class="nav-item"><span>Konsistensi</span><span class="nav-dot"></span></a>
+    </nav>
     <div class="user-chip">
-      <a href="dashboard.html" class="btn btn-ghost">&larr; Dashboard</a>
-      <div class="avatar" id="user-avatar">U</div>
-      <button id="logout-btn" class="btn btn-ghost">Keluar</button>
+      <div class="user-info">
+        <div class="name" id="user-name">&nbsp;</div>
+        <div class="email" id="user-email">&nbsp;</div>
+      </div>
+      <button type="button" class="theme-toggle" data-theme-toggle aria-label="Ganti tema terang atau gelap" aria-pressed="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor"/></svg>
+      </button>
+      <a href="profile.html" class="avatar" id="user-avatar" aria-label="Profil dan pengaturan">U</a>
     </div>
   </div>
 </header>
 
-<main class="dash-main">
-  <div class="container">
-    <div class="dash-head">
+<main class="app-main">
+  <div class="container narrow">
+    <div class="page-head">
       <div>
-        <h1>SatriaKlengerAI</h1>
+        <h1>Plato AI</h1>
         <p>Teman ngobrol seputar kesehatan, berat badan, dan fitur-fitur PushMetter.</p>
       </div>
     </div>
 
-    <div class="chat-grid">
-      <section class="card chat-panel">
-        <div class="chat-header">
-          <div class="chat-avatar-ring">
-            <img src="asset/satria-icon.png" alt="SatriaKlengerAI" />
-          </div>
-          <div>
-            <div class="chat-title">SatriaKlengerAI</div>
-            <div class="chat-subtitle" id="chat-status">Siap ngobrol</div>
-          </div>
+    <section class="chat-panel" aria-label="Percakapan dengan Plato AI">
+      <div class="chat-header">
+        <div class="chat-avatar-ring">
+          <img class="plato-mark" src="asset/plato-icon.svg" alt="Plato AI" />
         </div>
-
-        <div class="chat-messages" id="chat-messages">
-          <div class="msg msg-ai">
-            <div class="msg-avatar"><img src="asset/satria-icon.png" alt="" /></div>
-            <div class="msg-bubble">Woy, gas! Aku SatriaKlengerAI 👋 Aku fokus bantu soal kesehatan & berat badan, juga apa pun terkait dashboard PushMetter ini (loadcell, grafik, streak, dll). Mau tanya apa?</div>
-          </div>
+        <div>
+          <div class="chat-title">Plato AI</div>
+          <div class="chat-subtitle" id="chat-status">Siap ngobrol</div>
         </div>
+        <a class="chat-streak" href="streak.html" id="streak-chip" title="Lihat konsistensi harian">streak</a>
+        <button type="button" class="chat-clear" id="chat-clear">bersihkan</button>
+      </div>
 
-        <form id="chat-form" class="chat-input-row">
-          <input type="text" id="chat-input" placeholder="Tulis pesan..." autocomplete="off" required />
-          <button type="submit" id="chat-send" class="btn btn-primary">Kirim</button>
-        </form>
-      </section>
-
-      <aside class="card streak-card">
-        <p class="card-title">StreakPet harian</p>
-        <div class="streak-pet">
-          <img id="streak-img" src="asset/streak-flat.png" alt="StreakPet" />
+      <div class="chat-messages" id="chat-messages" role="log" aria-live="polite">
+        <div class="msg msg-ai">
+          <span class="msg-meta">Plato</span>
+          <p class="msg-bubble">Halo! Aku Plato AI. Aku fokus bantu soal kesehatan dan berat badan, juga apa pun terkait dashboard PushMetter ini (loadcell, grafik, streak, dll). Mau tanya apa?</p>
         </div>
-        <div class="streak-count"><span id="streak-count">0</span> hari beruntun</div>
-        <div class="streak-best">Rekor terbaik: <span id="streak-best">0</span> hari</div>
-        <p class="streak-note" id="streak-note">Ngobrol tiap hari biar streak-mu tetap nyala!</p>
-      </aside>
-    </div>
+      </div>
+
+      <div class="chat-chips" id="chat-chips" aria-label="Contoh pertanyaan">
+        <button type="button" class="chip" data-prompt="Bagaimana cara membaca grafik riwayat tarikan?">Cara baca grafik</button>
+        <button type="button" class="chip" data-prompt="Apa itu loadcell dan bagaimana cara kerjanya?">Apa itu loadcell?</button>
+        <button type="button" class="chip" data-prompt="Beri tips sederhana untuk menjaga berat badan tetap stabil.">Tips berat badan</button>
+      </div>
+
+      <form id="chat-form" class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Tanya Plato seputar kesehatan dan alat ukur..." autocomplete="off" aria-label="Pesan untuk Plato AI" required />
+        <button type="submit" id="chat-send" class="btn btn-primary btn-send" aria-label="Kirim pesan">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </form>
+    </section>
   </div>
 </main>
 
 <script type="module" src="js/aichat.js"></script>
-<script type="module" src="js/layers3d.js"></script>
 </body>
 </html>
