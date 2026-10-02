@@ -4,6 +4,7 @@ import { watchLive, watchHistory } from "./live-data.js";
 import { saveSession, formatDuration } from "./sessions.js";
 import { fmt, getUnit } from "./units.js";
 import { mountScale } from "./scene3d.js";
+import { createBluetooth, bluetoothSupported } from "./bluetooth.js";
 
 const $ = (id) => document.getElementById(id);
 const readingPanel = $("reading-panel");
@@ -25,6 +26,18 @@ const sessionBtn = $("session-btn");
 const sessionLabel = $("session-label");
 const sessionNote = $("session-note");
 const tareBtn = $("tare-btn");
+const btBtn = $("bt-btn");
+const btBtnLabel = $("bt-btn-label");
+const btPanel = $("bt-panel");
+const btLive = $("bt-live");
+const btReadouts = $("bt-readouts");
+const btCal = $("bt-cal");
+const btNote = $("bt-note");
+const btGrams = $("bt-grams");
+const btLeftEl = $("bt-left");
+const btRightEl = $("bt-right");
+const btTotalEl = $("bt-total");
+const btActionBtns = [$("bt-cal-left"), $("bt-cal-right"), $("bt-tare")];
 
 const scale3d = mountScale($("dash-stage"), { frame: "rig" });
 
@@ -181,6 +194,94 @@ sessionBtn.addEventListener("click", () => {
   else startSession();
 });
 
+// ---- Bluetooth: bacaan realtime dari alat + tare/kalibrasi satu ketukan ----
+const GRAMS_KEY = "pm-cal-grams";
+try {
+  const saved = localStorage.getItem(GRAMS_KEY);
+  if (saved) btGrams.value = saved;
+} catch {}
+
+const bt = createBluetooth({
+  onReading(leftG, rightG) {
+    btLeftEl.textContent = fmt(leftG / 1000);
+    btRightEl.textContent = fmt(rightG / 1000);
+    btTotalEl.textContent = fmt((leftG + rightG) / 1000);
+    onReading((leftG + rightG) / 1000); // Bluetooth lebih cepat dari Firebase, jadi jadi sumber utama
+  },
+  onState(state) {
+    const connected = state === "connected";
+    btBtn.classList.toggle("is-connected", connected);
+    btBtn.setAttribute("aria-pressed", String(connected));
+    btBtn.disabled = state === "connecting";
+    btBtnLabel.textContent = connected ? "Terhubung" : state === "connecting" ? "Menyambung..." : "Bluetooth";
+    btLive.hidden = !connected;
+    btReadouts.hidden = !connected;
+    btCal.hidden = !connected;
+    btPanel.hidden = !connected && !btNote.textContent;
+    if (connected) btNote.textContent = "";
+  },
+});
+
+function btMessage(text) {
+  btNote.textContent = text;
+  btPanel.hidden = !bt.connected && !text;
+}
+
+function describeBtResult(res, label) {
+  if (res.startsWith("OK:T")) return "Alat dinolkan.";
+  if (res.startsWith("OK:C")) return `${label} terkalibrasi (faktor ${res.split(":")[2]}).`;
+  if (res === "ERR:timeout") return "Alat tidak membalas. Coba lagi.";
+  if (res === "ERR:terputus") return "Sambungan Bluetooth terputus.";
+  if (res.startsWith("ERR:C")) return `${label} gagal dikalibrasi. Pastikan beban terpasang dan angka acuan benar.`;
+  return "Perintah gagal: " + res;
+}
+
+async function runBtAction(fn, label, busyText) {
+  btActionBtns.forEach((b) => (b.disabled = true));
+  btMessage(busyText);
+  try {
+    btMessage(describeBtResult(await fn(), label));
+  } finally {
+    btActionBtns.forEach((b) => (b.disabled = false));
+  }
+}
+
+btBtn.addEventListener("click", async () => {
+  if (!bluetoothSupported) {
+    btMessage("Browser ini tidak mendukung Web Bluetooth. Pakai Chrome atau Edge di Android atau komputer (iPhone/Safari belum bisa).");
+    return;
+  }
+  if (bt.connected) {
+    bt.disconnect();
+    btMessage("");
+    return;
+  }
+  btMessage("");
+  try {
+    await bt.connect();
+  } catch (err) {
+    if (err?.name === "NotFoundError") return; // dialog ditutup tanpa memilih
+    console.error("Bluetooth gagal tersambung:", err);
+    btMessage("Gagal tersambung ke alat. Pastikan ESP32 menyala dan dekat, lalu coba lagi.");
+  }
+});
+
+function calibrateSide(side, label) {
+  const grams = Number(btGrams.value);
+  if (!(grams > 0)) {
+    btMessage("Isi beban acuan dalam gram (lebih dari 0).");
+    return;
+  }
+  try {
+    localStorage.setItem(GRAMS_KEY, String(grams));
+  } catch {}
+  runBtAction(() => bt.calibrate(side, grams), label, `Mengkalibrasi ${label.toLowerCase()}...`);
+}
+
+$("bt-cal-left").addEventListener("click", () => calibrateSide("left", "Kiri"));
+$("bt-cal-right").addEventListener("click", () => calibrateSide("right", "Kanan"));
+$("bt-tare").addEventListener("click", () => runBtAction(() => bt.tare(), "Alat", "Menolkan alat..."));
+
 tareBtn.addEventListener("click", () => {
   if (tareOffset !== 0) {
     tareOffset = 0;
@@ -206,7 +307,9 @@ document.addEventListener("unitchange", render);
 
 initShell((user) => {
   uid = user.uid;
-  watchLive(onReading, showReadError);
+  watchLive((kg) => {
+    if (!bt.connected) onReading(kg); // saat Bluetooth tersambung, angka dari Bluetooth yang dipakai
+  }, showReadError);
   watchHistory((entries) => {
     historyMax = entries.length ? Math.max(...entries) : null;
     render();

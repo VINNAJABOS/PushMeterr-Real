@@ -47,9 +47,15 @@
         <h1>Live</h1>
         <p>Alat ukur tarikan. Data dibaca langsung dari <code>/loadcell/live</code>.</p>
       </div>
-      <div class="conn-status" role="status" aria-live="polite">
-        <span class="status-indicator" id="status-dot"></span>
-        <span id="status-text">menghubungkan</span>
+      <div class="head-tools">
+        <button type="button" class="btn btn-ghost bt-btn" id="bt-btn" aria-pressed="false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 7.5 17 16l-5 4.5V3.5L17 8 6.5 16.5"/></svg>
+          <span id="bt-btn-label">Bluetooth</span>
+        </button>
+        <div class="conn-status" role="status" aria-live="polite">
+          <span class="status-indicator" id="status-dot"></span>
+          <span id="status-text">menghubungkan</span>
+        </div>
       </div>
     </div>
 
@@ -97,6 +103,31 @@
         </div>
       </aside>
     </div>
+
+    <section class="bt-panel" id="bt-panel" aria-labelledby="bt-title" hidden>
+      <div class="readout-head">
+        <h2 class="label" id="bt-title">Alat &middot; Bluetooth</h2>
+        <span class="label live-text" id="bt-live" hidden>Realtime</span>
+      </div>
+      <dl class="bt-readouts" id="bt-readouts" hidden>
+        <div><dt>Kiri</dt><dd><span id="bt-left">--.--</span> <small data-unit-label>kg</small></dd></div>
+        <div><dt>Kanan</dt><dd><span id="bt-right">--.--</span> <small data-unit-label>kg</small></dd></div>
+        <div><dt>Total</dt><dd><span id="bt-total">--.--</span> <small data-unit-label>kg</small></dd></div>
+      </dl>
+      <div class="bt-cal" id="bt-cal" hidden>
+        <label class="bt-weight" for="bt-grams">
+          <span class="label">Beban acuan</span>
+          <span class="bt-weight-input"><input id="bt-grams" type="number" inputmode="decimal" min="1" step="any" value="1000" /> <small>g</small></span>
+        </label>
+        <div class="bt-cal-actions">
+          <button type="button" class="btn btn-outline btn-sm" id="bt-cal-left">Kalibrasi kiri</button>
+          <button type="button" class="btn btn-outline btn-sm" id="bt-cal-right">Kalibrasi kanan</button>
+          <button type="button" class="text-btn" id="bt-tare">[ Nol-kan alat ]</button>
+        </div>
+        <p class="bt-hint">Kosongkan alat dan tap Nol-kan. Gantung beban acuan pada satu sisi, lalu tap kalibrasi sisi itu. Satu ketukan, hasilnya tersimpan di alat.</p>
+      </div>
+      <p class="bt-note" id="bt-note" role="status" aria-live="polite"></p>
+    </section>
   </div>
 </main>
 
