@@ -45,7 +45,7 @@
     <div class="page-head">
       <div>
         <h1>Live</h1>
-        <p>Alat ukur tarikan. Data dibaca langsung dari <code>/loadcell/live</code>.</p>
+        <p>Alat ukur tarikan. Data dibaca langsung dari alat lewat Bluetooth.</p>
       </div>
       <div class="head-tools">
         <button type="button" class="btn btn-ghost bt-btn" id="bt-btn" aria-pressed="false">
@@ -54,7 +54,7 @@
         </button>
         <div class="conn-status" role="status" aria-live="polite">
           <span class="status-indicator" id="status-dot"></span>
-          <span id="status-text">menghubungkan</span>
+          <span id="status-text">belum tersambung</span>
         </div>
       </div>
     </div>
@@ -70,7 +70,7 @@
           <span class="unit" data-unit-label>kg</span>
         </div>
         <p class="last-update">Pembacaan terakhir: <span id="last-update">belum ada</span></p>
-        <p class="waiting-note">Belum ada angka masuk. Pastikan ESP32 menyala dan tersambung ke WiFi.</p>
+        <p class="waiting-note">Belum ada angka masuk. Nyalakan alat, tap tombol Bluetooth, lalu pilih Pluto AI.</p>
 
         <div class="peak-meter">
           <div class="peak-labels">
