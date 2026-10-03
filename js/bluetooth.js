@@ -15,7 +15,8 @@ const MSG_HISTORY_END = 2;
 const MSG_RECORD_HEADER = 3;
 const MSG_RECORD_SAMPLES = 4;
 const MSG_RESULT = 5;
-const HEADER_BYTES = 16;
+const HEADER_BYTES = 16;      // header lama (tanpa puncak kiri/kanan); firmware baru mengirim 20
+const HEADER_BYTES_LR = 20;
 
 export const bluetoothSupported =
   typeof navigator !== "undefined" && "bluetooth" in navigator;
@@ -29,13 +30,16 @@ function parseHeader(view, offset = 0) {
     count: view.getUint16(offset + 10, true),
     peak:  view.getUint16(offset + 12, true) / 100,
     avg:   view.getUint16(offset + 14, true) / 100,
+    // puncak per sisi; null kalau firmware lama (header 16 byte)
+    peakL: view.byteLength >= offset + HEADER_BYTES_LR ? view.getUint16(offset + 16, true) / 100 : null,
+    peakR: view.byteLength >= offset + HEADER_BYTES_LR ? view.getUint16(offset + 18, true) / 100 : null,
   };
 }
 
 /**
  * handlers:
  *  onReading(leftG, rightG, { recording, elapsed })  tiap notifikasi data (sekitar 0,5 detik)
- *  onResult(session)                                  sesi Record selesai: { id, ts, dur, count, peak, avg } (kg)
+ *  onResult(session)                                  sesi Record selesai: { id, ts, dur, count, peak, avg, peakL, peakR } (kg)
  *  onState("disconnected" | "connecting" | "connected")
  */
 export function createBluetooth({ onReading, onResult, onState }) {
@@ -251,7 +255,7 @@ export function createBluetooth({ onReading, onResult, onState }) {
     stopRecord:    ()             => command("STOP_RECORD"),
     deleteRecord:  (id)           => command(`DELETE_RECORD:${id}`),
     clearHistory:  ()             => command("CLEAR_HISTORY"),
-    /** -> [{ id, ts, dur, count, peak, avg }] (kg) */
+    /** -> [{ id, ts, dur, count, peak, avg, peakL, peakR }] (kg) */
     getHistory:    ()             => request("history", "GET_HISTORY"),
     /** -> { id, ts, dur, count, peak, avg, samples: [{ t, kg }] } */
     getRecord:     (id)           => request("record", `GET_RECORD:${id}`),

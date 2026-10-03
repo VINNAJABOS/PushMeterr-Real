@@ -25,7 +25,8 @@ const devDetailTitleEl = $("dev-detail-title");
 const devChartEl = $("dev-chart");
 const devChartNoteEl = $("dev-chart-note");
 const devPeakEl = $("dev-peak");
-const devAvgEl = $("dev-avg");
+const devLeftEl = $("dev-left");
+const devRightEl = $("dev-right");
 const devDurEl = $("dev-dur");
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -172,7 +173,7 @@ function renderLog(list) {
     when.textContent = dayLabel(new Date(s.start));
     const meta = document.createElement("div");
     meta.className = "log-meta";
-    meta.textContent = `rata-rata ${fmt(s.avg)} ${getUnit()} · ${formatDuration(s.dur)}`;
+    meta.textContent = sideSummary(s.left, s.right, s.avg, s.dur);
     left.append(when, meta);
 
     const right = document.createElement("div");
@@ -205,6 +206,14 @@ function render() {
   renderDevice();
 }
 
+// "Kiri 12,3 · Kanan 14,1 kg · 00:05"; sesi lama yang belum punya data kiri/kanan memakai rata-rata.
+function sideSummary(left, right, avg, dur) {
+  const unit = getUnit();
+  return left === null || left === undefined || right === null || right === undefined
+    ? `rata-rata ${fmt(avg)} ${unit} · ${formatDuration(dur)}`
+    : `kiri ${fmt(left)} · kanan ${fmt(right)} ${unit} · ${formatDuration(dur)}`;
+}
+
 // ---- Sesi tersimpan di alat ----
 const sessionName = (id) => "#" + String(id).padStart(3, "0");
 const sessionDate = (ts) => (ts ? dayLabel(new Date(ts * 1000)) : "waktu tidak diketahui");
@@ -225,7 +234,7 @@ function renderDevice() {
     when.textContent = `${sessionName(s.id)} · ${sessionDate(s.ts)}`;
     const meta = document.createElement("div");
     meta.className = "log-meta";
-    meta.textContent = `rata-rata ${fmt(s.avg)} ${getUnit()} · ${formatDuration(s.dur)}`;
+    meta.textContent = sideSummary(s.peakL, s.peakR, s.avg, s.dur);
     left.append(when, meta);
 
     const right = document.createElement("div");
@@ -274,7 +283,8 @@ function renderDetail() {
   if (!s) return;
   devDetailTitleEl.textContent = `Sesi ${sessionName(s.id)} · ${sessionDate(s.ts)}`;
   devPeakEl.textContent = fmt(s.peak);
-  devAvgEl.textContent = fmt(s.avg);
+  devLeftEl.textContent = s.peakL === null || s.peakL === undefined ? "-" : fmt(s.peakL);
+  devRightEl.textContent = s.peakR === null || s.peakR === undefined ? "-" : fmt(s.peakR);
   devDurEl.textContent = formatDuration(s.dur);
   const samples = loadRecord(s.id);
   devChartNoteEl.hidden = !!samples;

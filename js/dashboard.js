@@ -203,6 +203,7 @@ async function onSessionResult(item) {
       peak:  item.peak,
       avg:   item.avg,
       n:     item.count,
+      ...(item.peakL !== null && { left: item.peakL, right: item.peakR }), // puncak per sisi (alat versi baru)
     });
   } catch (err) {
     console.error("Gagal menyimpan ringkasan sesi ke Firestore:", err);
