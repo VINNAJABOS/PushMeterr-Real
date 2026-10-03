@@ -41,6 +41,38 @@
       <span class="label" id="total-sessions">0 sesi tercatat</span>
     </div>
 
+    <section class="history-block" aria-labelledby="dev-title">
+      <div class="block-head">
+        <h2 class="label" id="dev-title">Tersimpan di alat</h2>
+        <span class="head-actions">
+          <button type="button" class="btn btn-ghost btn-sm bt-btn" id="dev-sync">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 7.5 17 16l-5 4.5V3.5L17 8 6.5 16.5"/></svg>
+            <span id="dev-sync-label">Sambungkan alat</span>
+          </button>
+          <button type="button" class="text-btn" id="dev-clear" hidden>[ Hapus semua ]</button>
+        </span>
+      </div>
+      <ul class="log-list" id="dev-list"></ul>
+      <p class="empty-note" id="dev-note"></p>
+
+      <div class="dev-detail" id="dev-detail" hidden>
+        <div class="block-head">
+          <h3 class="label" id="dev-detail-title">Sesi</h3>
+          <span class="head-actions">
+            <button type="button" class="text-btn" id="dev-delete">[ Hapus sesi ]</button>
+            <button type="button" class="text-btn" id="dev-close">[ Tutup ]</button>
+          </span>
+        </div>
+        <div class="rec-chart" id="dev-chart" role="img" aria-label="Grafik tekanan terhadap waktu"></div>
+        <p class="empty-note" id="dev-chart-note" hidden></p>
+        <dl class="metric-rows" aria-label="Ringkasan sesi">
+          <div><dt>Puncak</dt><dd><span id="dev-peak">-</span> <small data-unit-label>kg</small></dd></div>
+          <div><dt>Rata-rata</dt><dd><span id="dev-avg">-</span> <small data-unit-label>kg</small></dd></div>
+          <div><dt>Durasi</dt><dd id="dev-dur">-</dd></div>
+        </dl>
+      </div>
+    </section>
+
     <div class="tabs" role="tablist" aria-label="Rentang waktu">
       <button type="button" class="tab" role="tab" aria-selected="false" data-range="today">Hari ini</button>
       <button type="button" class="tab is-active" role="tab" aria-selected="true" data-range="week">Minggu</button>
@@ -63,23 +95,6 @@
       <p class="empty-note" id="log-empty" hidden>Belum ada sesi. Tekan "Mulai sesi" di halaman <a class="text-link" href="dashboard.html">Live</a> untuk merekam.</p>
     </section>
 
-    <section class="history-block" aria-labelledby="raw-title" hidden>
-      <div class="block-head">
-        <h2 class="label" id="raw-title">Pembacaan sensor terakhir</h2>
-        <span class="label">50 data</span>
-      </div>
-      <div class="raw-grid">
-        <div>
-          <div class="raw-chart" id="raw-chart"></div>
-          <p class="empty-note" id="raw-empty">Grafik muncul setelah ESP32 mengirim pembacaan pertamanya.</p>
-        </div>
-        <dl class="metric-rows" aria-label="Ringkasan 50 pembacaan terakhir">
-          <div><dt>Min</dt><dd><span id="min-value">-</span> <small data-unit-label>kg</small></dd></div>
-          <div><dt>Rata-rata</dt><dd><span id="avg-value">-</span> <small data-unit-label>kg</small></dd></div>
-          <div><dt>Maks</dt><dd><span id="max-value">-</span> <small data-unit-label>kg</small></dd></div>
-        </dl>
-      </div>
-    </section>
   </div>
 </main>
 

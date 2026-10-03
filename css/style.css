@@ -1798,23 +1798,50 @@ a.avatar:hover {
   color: var(--ink-muted);
 }
 
-.raw-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  gap: 32px;
+.head-actions {
+  display: inline-flex;
   align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-.raw-grid .metric-rows {
-  margin: 0;
+.dev-row {
+  cursor: pointer;
 }
 
-.raw-chart {
-  height: 80px;
+.dev-row:hover .log-when,
+.dev-row.is-open .log-when {
+  color: var(--live-ink);
 }
 
-.raw-chart .trend-svg {
-  height: 100%;
+.dev-row:focus-visible {
+  outline: 2px solid var(--live);
+  outline-offset: 2px;
+}
+
+.dev-detail {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--hairline-strong);
+}
+
+/* Grafik gaya terhadap waktu (Live saat merekam, Riwayat saat membuka sesi) */
+.rec-chart-wrap {
+  margin-top: 24px;
+}
+
+.rec-chart {
+  position: relative;
+  min-height: 170px;
+  margin-top: 8px;
+}
+
+.chart-ylabel {
+  text-anchor: end;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--ink);
+  opacity: 0.5;
 }
 
 /* ===== Chat Plato AI ===== */
@@ -2409,8 +2436,7 @@ a.setting-value:hover {
   .split,
   .auth-shell,
   .live-grid,
-  .streak-layout,
-  .raw-grid {
+  .streak-layout {
     grid-template-columns: minmax(0, 1fr);
   }
 

@@ -1,9 +1,11 @@
-// Halaman Live: angka sesaat, sesi rekaman, tare (nol tampilan), status perangkat.
+// Halaman Live: angka sesaat, Record (direkam dan disimpan di alat), tare, status perangkat.
 import { initShell } from "./shell.js";
 import { saveSession, formatDuration } from "./sessions.js";
 import { fmt, getUnit } from "./units.js";
 import { mountScale } from "./scene3d.js";
 import { createBluetooth, bluetoothSupported } from "./bluetooth.js";
+import { drawForceChart } from "./chart.js";
+import { upsertSession } from "./device-cache.js";
 import { markSeen, readLastSeen, formatLastSeen } from "./last-seen.js";
 
 const $ = (id) => document.getElementById(id);
@@ -26,6 +28,8 @@ const sessionBtn    = $("session-btn");
 const sessionLabel  = $("session-label");
 const sessionNote   = $("session-note");
 const tareBtn       = $("tare-btn");
+const recChartWrap  = $("rec-chart-wrap");
+const recChartEl    = $("rec-chart");
 const btBtn         = $("bt-btn");
 const btBtnLabel    = $("bt-btn-label");
 const btPanel       = $("bt-panel");
@@ -45,7 +49,7 @@ let uid             = null;
 let rawKg           = null;  // pembacaan terakhir apa adanya dari sensor
 let tareOffset      = 0;     // nol tampilan, hanya di browser ini
 let lastReceivedAt  = null;
-let session         = null;  // { start, sum, n, peak } selama merekam
+let session         = null;  // { start, sum, n, peak, points } selama alat merekam
 let durationTimer   = null;
 let btActive        = false; // true selama Bluetooth tersambung
 let lastSeenTs      = null;  // kapan alat terakhir online (ms), dibaca dari akun
@@ -130,71 +134,83 @@ function onReading(kg) {
     session.sum  += shown;
     session.n    += 1;
     session.peak  = Math.max(session.peak, shown);
+    session.points.push({ t: (Date.now() - session.start) / 1000, kg: Math.max(shown, 0) });
+    drawForceChart(recChartEl, session.points);
   }
   setOnline(true);
   tickLastUpdate();
   render();
 }
 
-function startSession() {
-  session = { start: Date.now(), sum: 0, n: 0, peak: 0 };
-  if (shownKg() !== null) {
-    session.sum  = shownKg();
-    session.n    = 1;
-    session.peak = Math.max(shownKg(), 0);
-  }
+// Sesi = Record di alat. Status "merekam" mengikuti flag dari alat (bukan tombol), supaya tetap
+// benar kalau Record dimulai dari tombol Serial atau halaman ini dibuka saat alat sudah merekam.
+function beginSessionUI(elapsedSec = 0) {
+  session = { start: Date.now() - elapsedSec * 1000, sum: 0, n: 0, peak: 0, points: [] };
   sessionBtn.classList.add("is-recording");
   sessionBtn.setAttribute("aria-pressed", "true");
   sessionLabel.textContent = "Akhiri sesi";
   recLabel.hidden          = false;
   sessionNote.textContent  = "";
+  recChartWrap.hidden      = false;
+  recChartEl.replaceChildren();
   durationTimer = setInterval(renderSessionRows, 1000);
   render();
 }
 
-async function stopSession() {
-  const done = session;
-  session    = null;
+function endSessionUI() {
+  session = null;
   clearInterval(durationTimer);
   sessionBtn.classList.remove("is-recording");
   sessionBtn.setAttribute("aria-pressed", "false");
   sessionLabel.textContent = "Mulai sesi";
   recLabel.hidden          = true;
-  render();
+  render(); // grafik terakhir tetap tampil sampai sesi berikutnya
+}
 
-  if (!done || done.n < 2) {
-    sessionNote.textContent = "Sesi terlalu singkat, tidak disimpan.";
-    return;
-  }
-  const record = {
-    start: new Date(done.start).toISOString(),
-    dur:   Math.round((Date.now() - done.start) / 1000),
-    peak:  done.peak,
-    avg:   done.sum / done.n,
-    n:     done.n,
-  };
-  sessionBtn.disabled     = true;
-  sessionNote.textContent = "Menyimpan sesi...";
+// Hasil akhir dihitung alat (Peak/Average/Duration) lalu disimpan di flash-nya.
+async function onSessionResult(item) {
+  upsertSession(item); // salinan untuk halaman Riwayat
+  const name = "#" + String(item.id).padStart(3, "0");
+  sessionNote.replaceChildren(
+    document.createTextNode(`Sesi ${name} tersimpan di alat: puncak ${fmt(item.peak)} ${getUnit()}, ${formatDuration(item.dur)}. `),
+    Object.assign(document.createElement("a"), { href: "history.html", textContent: "Lihat riwayat" })
+  );
+  // Ringkasan juga disimpan ke akun supaya tren di Riwayat tampil di HP maupun laptop.
+  const startMs = item.ts ? item.ts * 1000 : Date.now() - item.dur * 1000;
   try {
-    await saveSession(uid, record);
-    sessionNote.replaceChildren(
-      document.createTextNode(`Sesi tersimpan: puncak ${fmt(record.peak)} ${getUnit()}. `),
-      Object.assign(document.createElement("a"), {
-        href:        "history.html",
-        textContent: "Lihat riwayat",
-      })
-    );
+    await saveSession(uid, {
+      start: new Date(startMs).toISOString(),
+      dur:   item.dur,
+      peak:  item.peak,
+      avg:   item.avg,
+      n:     item.count,
+    });
   } catch (err) {
-    console.error("Gagal menyimpan sesi ke Firestore:", err);
-    sessionNote.textContent = "Sesi gagal disimpan. Cek koneksi lalu coba rekam lagi.";
-  } finally {
-    sessionBtn.disabled = false;
+    console.error("Gagal menyimpan ringkasan sesi ke Firestore:", err);
   }
 }
 
-sessionBtn.addEventListener("click", () => {
-  if (session) stopSession();
-  else startSession();
+function describeRecordError(res) {
+  if (res === "ERR:STOP:singkat") return "Sesi terlalu singkat, tidak disimpan.";
+  if (res === "ERR:START:sibuk")  return "Alat sudah sedang merekam.";
+  if (res === "ERR:STOP:diam")    return "Alat tidak sedang merekam.";
+  if (res === "ERR:timeout")      return "Alat tidak membalas. Coba lagi.";
+  if (res === "ERR:terputus")     return "Sambungan Bluetooth terputus.";
+  return "Perintah gagal: " + res;
+}
+
+sessionBtn.addEventListener("click", async () => {
+  if (!bt.connected) {
+    sessionNote.textContent = "Sambungkan alat dulu lewat tombol Bluetooth di kanan atas.";
+    return;
+  }
+  sessionBtn.disabled = true;
+  try {
+    const res = session ? await bt.stopRecord() : await bt.startRecord(Math.floor(Date.now() / 1000));
+    if (res.startsWith("ERR")) sessionNote.textContent = describeRecordError(res);
+  } finally {
+    sessionBtn.disabled = false;
+  }
 });
 
 // ---- Bluetooth: bacaan realtime dari alat + tare/kalibrasi satu ketukan ----
@@ -205,7 +221,9 @@ try {
 } catch { /* localStorage mungkin tidak tersedia (iframe, dll) */ }
 
 const bt = createBluetooth({
-  onReading(leftG, rightG) {
+  onReading(leftG, rightG, info) {
+    if (info.recording && !session) beginSessionUI(info.elapsed);
+    else if (!info.recording && session) endSessionUI();
     // Update readout Bluetooth kiri/kanan/total
     btLeftEl.textContent  = fmt(leftG  / 1000);
     btRightEl.textContent = fmt(rightG / 1000);
@@ -213,11 +231,13 @@ const bt = createBluetooth({
     // Gunakan total sebagai sumber utama (lebih cepat dari Firebase)
     onReading((leftG + rightG) / 1000);
   },
+  onResult: onSessionResult,
   onState(s) {
     const connected = s === "connected";
     const wasConnected = btActive;
     btActive = connected;
     if (wasConnected && !connected) markSeen(uid, true); // catat waktu putus sebagai terakhir online
+    if (!connected && session) endSessionUI(); // alat tetap merekam sendiri; status disinkronkan lagi saat tersambung
 
     btBtn.classList.toggle("is-connected", connected);
     btBtn.setAttribute("aria-pressed", String(connected));
@@ -313,15 +333,8 @@ tareBtn.addEventListener("click", () => {
     return;
   }
   // Nol baru → puncak dan rata-rata sesi tidak sebanding lagi
-  if (session) session = { start: session.start, sum: 0, n: 0, peak: 0 };
+  if (session) session = { ...session, sum: 0, n: 0, peak: 0 };
   render();
-});
-
-window.addEventListener("beforeunload", (e) => {
-  if (session) {
-    e.preventDefault();
-    e.returnValue = "";
-  }
 });
 
 document.addEventListener("unitchange", render);

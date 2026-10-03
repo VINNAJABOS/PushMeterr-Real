@@ -1,7 +1,11 @@
-// Halaman Riwayat: tren puncak per hari/sesi, daftar sesi, dan 50 pembacaan sensor terakhir.
+// Halaman Riwayat: sesi yang tersimpan di alat (dibaca lewat Bluetooth, detail grafik per sesi),
+// tren puncak per hari/sesi, dan log sesi dari akun.
 import { initShell } from "./shell.js";
 import { loadSessions, formatDuration } from "./sessions.js";
 import { fmt, getUnit } from "./units.js";
+import { createBluetooth, bluetoothSupported } from "./bluetooth.js";
+import { drawForceChart } from "./chart.js";
+import { loadList, replaceList, upsertSession, loadRecord, saveRecord, removeSession, clearAll } from "./device-cache.js";
 
 const $ = (id) => document.getElementById(id);
 const tabs = [...document.querySelectorAll("[data-range]")];
@@ -11,11 +15,18 @@ const trendNoteEl = $("trend-note");
 const trendEl = $("trend-chart");
 const logEl = $("session-log");
 const logEmptyEl = $("log-empty");
-const rawChartEl = $("raw-chart");
-const rawEmptyEl = $("raw-empty");
-const minEl = $("min-value");
-const avgEl = $("avg-value");
-const maxEl = $("max-value");
+const devListEl = $("dev-list");
+const devNoteEl = $("dev-note");
+const devSyncBtn = $("dev-sync");
+const devSyncLabel = $("dev-sync-label");
+const devClearBtn = $("dev-clear");
+const devDetailEl = $("dev-detail");
+const devDetailTitleEl = $("dev-detail-title");
+const devChartEl = $("dev-chart");
+const devChartNoteEl = $("dev-chart-note");
+const devPeakEl = $("dev-peak");
+const devAvgEl = $("dev-avg");
+const devDurEl = $("dev-dur");
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const DAY_ABBR = ["MIN", "SEN", "SEL", "RAB", "KAM", "JUM", "SAB"];
@@ -28,7 +39,8 @@ const RANGE_TITLE = {
 
 let sessions = [];
 let range = "week";
-let rawEntries = [];
+let devSessions = loadList(); // salinan lokal; sumber kebenaran tetap alat
+let openId = null;
 
 function svg(tag, attrs = {}, text) {
   const el = document.createElementNS(SVG_NS, tag);
@@ -190,42 +202,188 @@ function render() {
   const list = inRange(sessions);
   renderTrend(buildPoints(list));
   renderLog(list);
-  renderRaw();
+  renderDevice();
 }
 
-function renderRaw() {
-  rawChartEl.replaceChildren();
-  rawEmptyEl.hidden = rawEntries.length > 0;
-  if (!rawEntries.length) {
-    minEl.textContent = avgEl.textContent = maxEl.textContent = "-";
+// ---- Sesi tersimpan di alat ----
+const sessionName = (id) => "#" + String(id).padStart(3, "0");
+const sessionDate = (ts) => (ts ? dayLabel(new Date(ts * 1000)) : "waktu tidak diketahui");
+
+function renderDevice() {
+  devListEl.replaceChildren();
+  const best = devSessions.length ? Math.max(...devSessions.map((s) => s.peak)) : null;
+  for (const s of devSessions) {
+    const row = document.createElement("li");
+    row.className = "log-row dev-row" + (s.id === openId ? " is-open" : "");
+    row.tabIndex = 0;
+    row.setAttribute("role", "button");
+    row.setAttribute("aria-label", `Buka sesi ${sessionName(s.id)}`);
+
+    const left = document.createElement("div");
+    const when = document.createElement("div");
+    when.className = "log-when";
+    when.textContent = `${sessionName(s.id)} · ${sessionDate(s.ts)}`;
+    const meta = document.createElement("div");
+    meta.className = "log-meta";
+    meta.textContent = `rata-rata ${fmt(s.avg)} ${getUnit()} · ${formatDuration(s.dur)}`;
+    left.append(when, meta);
+
+    const right = document.createElement("div");
+    right.className = "log-peak";
+    const val = document.createElement("span");
+    val.className = s.peak === best ? "log-value is-best" : "log-value";
+    val.textContent = `${fmt(s.peak)} ${getUnit()}`;
+    const tag = document.createElement("span");
+    tag.className = "log-tag";
+    tag.textContent = "PUNCAK";
+    right.append(val, tag);
+
+    row.append(left, right);
+    const open = () => openDetail(s.id);
+    row.addEventListener("click", open);
+    row.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        open();
+      }
+    });
+    devListEl.appendChild(row);
+  }
+
+  if (!devSessions.length) {
+    devNoteEl.hidden = false;
+    devNoteEl.textContent = bluetoothSupported
+      ? 'Belum ada sesi dari alat. Tekan "Sambungkan alat" untuk membaca riwayat, atau rekam sesi di halaman Live.'
+      : "Browser ini tidak mendukung Web Bluetooth. Pakai Chrome atau Edge di Android/komputer.";
+  } else if (devNoteEl.dataset.busy !== "1") {
+    devNoteEl.hidden = true;
+  }
+  devClearBtn.hidden = !(bt.connected && devSessions.length);
+  renderDetail();
+}
+
+function setDevNote(text, busy = false) {
+  devNoteEl.dataset.busy = busy ? "1" : "";
+  devNoteEl.textContent = text;
+  devNoteEl.hidden = !text;
+}
+
+function renderDetail() {
+  const s = devSessions.find((x) => x.id === openId);
+  devDetailEl.hidden = !s;
+  if (!s) return;
+  devDetailTitleEl.textContent = `Sesi ${sessionName(s.id)} · ${sessionDate(s.ts)}`;
+  devPeakEl.textContent = fmt(s.peak);
+  devAvgEl.textContent = fmt(s.avg);
+  devDurEl.textContent = formatDuration(s.dur);
+  const samples = loadRecord(s.id);
+  devChartNoteEl.hidden = !!samples;
+  if (samples) {
+    drawForceChart(devChartEl, samples);
+  } else {
+    devChartEl.replaceChildren();
+    devChartNoteEl.textContent = bt.connected
+      ? "Memuat grafik dari alat..."
+      : "Sambungkan alat untuk memuat grafik sesi ini.";
+  }
+}
+
+async function openDetail(id) {
+  openId = id;
+  renderDevice();
+  if (loadRecord(id) || !bt.connected) return;
+  try {
+    const rec = await bt.getRecord(id);
+    saveRecord(id, rec.samples);
+  } catch (err) {
+    console.error("Gagal membaca rekaman dari alat:", err);
+    devChartNoteEl.hidden = false;
+    devChartNoteEl.textContent = "Grafik gagal dimuat dari alat. Coba buka lagi.";
     return;
   }
-  const min = Math.min(...rawEntries);
-  const max = Math.max(...rawEntries);
-  const avg = rawEntries.reduce((a, b) => a + b, 0) / rawEntries.length;
-  minEl.textContent = fmt(min);
-  avgEl.textContent = fmt(avg);
-  maxEl.textContent = fmt(max);
-
-  const W = Math.max(200, Math.round(rawChartEl.clientWidth || 310));
-  const H = 80;
-  const span = max - min || 1;
-  const pts = rawEntries.map((v, i) => [
-    rawEntries.length === 1 ? W / 2 : (i * W) / (rawEntries.length - 1),
-    H - 6 - ((v - min) / span) * (H - 16),
-  ]);
-  const root = svg("svg", { viewBox: `0 0 ${W} ${H}`, class: "trend-svg", role: "img" });
-  root.appendChild(svg("title", {}, "50 pembacaan sensor terakhir"));
-  root.appendChild(
-    svg("path", {
-      d: pts.map(([x, y], i) => `${i === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`).join(" "),
-      class: "trend-line",
-    })
-  );
-  const [lx, ly] = pts[pts.length - 1];
-  root.appendChild(svg("circle", { cx: Math.min(lx, W - 4), cy: ly, r: 3.5, class: "trend-live" }));
-  rawChartEl.appendChild(root);
+  if (openId === id) renderDetail();
 }
+
+async function syncFromDevice() {
+  setDevNote("Membaca riwayat dari alat...", true);
+  try {
+    devSessions = replaceList(await bt.getHistory());
+    if (openId !== null && !devSessions.some((s) => s.id === openId)) openId = null;
+    setDevNote("");
+  } catch (err) {
+    console.error("Gagal membaca riwayat dari alat:", err);
+    setDevNote("Riwayat gagal dibaca dari alat. Coba sinkronkan lagi.");
+  }
+  renderDevice();
+}
+
+const bt = createBluetooth({
+  onReading() {}, // halaman ini tidak menampilkan angka realtime
+  onResult(item) {
+    devSessions = upsertSession(item); // sesi baru selesai selagi halaman ini terbuka
+    renderDevice();
+  },
+  onState(state) {
+    devSyncBtn.disabled = state === "connecting";
+    devSyncBtn.classList.toggle("is-connected", state === "connected");
+    devSyncLabel.textContent =
+      state === "connected" ? "Sinkronkan" : state === "connecting" ? "Menyambung..." : "Sambungkan alat";
+    devClearBtn.hidden = !(state === "connected" && devSessions.length);
+    if (!devDetailEl.hidden) renderDetail();
+  },
+});
+
+devSyncBtn.addEventListener("click", async () => {
+  if (!bluetoothSupported) {
+    renderDevice();
+    return;
+  }
+  try {
+    if (!bt.connected) await bt.connect();
+    await syncFromDevice();
+  } catch (err) {
+    if (err?.name === "NotFoundError") return; // dialog ditutup tanpa memilih
+    console.error("Bluetooth gagal tersambung:", err);
+    setDevNote("Gagal tersambung ke alat. Pastikan ESP32 menyala dan dekat, lalu coba lagi.");
+  }
+});
+
+$("dev-close").addEventListener("click", () => {
+  openId = null;
+  renderDevice();
+});
+
+$("dev-delete").addEventListener("click", async () => {
+  if (openId === null) return;
+  if (!bt.connected) {
+    setDevNote("Sambungkan alat dulu untuk menghapus sesi.");
+    return;
+  }
+  const res = await bt.deleteRecord(openId);
+  if (!res.startsWith("OK")) {
+    setDevNote("Sesi gagal dihapus dari alat.");
+    return;
+  }
+  removeSession(openId);
+  devSessions = loadList();
+  openId = null;
+  setDevNote("");
+  renderDevice();
+});
+
+devClearBtn.addEventListener("click", async () => {
+  if (!bt.connected || !window.confirm("Hapus semua sesi yang tersimpan di alat? Ini tidak bisa dibatalkan.")) return;
+  const res = await bt.clearHistory();
+  if (!res.startsWith("OK")) {
+    setDevNote("Riwayat gagal dihapus dari alat.");
+    return;
+  }
+  clearAll();
+  devSessions = [];
+  openId = null;
+  setDevNote("");
+  renderDevice();
+});
 
 tabs.forEach((t) =>
   t.addEventListener("click", () => {
