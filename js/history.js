@@ -344,7 +344,7 @@ devSyncBtn.addEventListener("click", async () => {
   } catch (err) {
     if (err?.name === "NotFoundError") return; // dialog ditutup tanpa memilih
     console.error("Bluetooth gagal tersambung:", err);
-    setDevNote("Gagal tersambung ke alat. Pastikan ESP32 menyala dan dekat, lalu coba lagi.");
+    setDevNote(`Gagal tersambung ke alat (${err?.name || "Error"}: ${err?.message || "tidak diketahui"}). Pastikan ESP32 menyala dan dekat, lalu coba lagi.`);
   }
 });
 
