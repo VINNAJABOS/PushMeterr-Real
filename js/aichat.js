@@ -1,7 +1,6 @@
 // Halaman Plato AI: chat ke Gemini dengan konteks data sensor dan streak asli.
 import { askPlatoAI } from "./gemini-config.js";
 import { initShell } from "./shell.js";
-import { watchLive, watchHistory } from "./live-data.js";
 import { touchStreak } from "./streak.js";
 
 const chatMessagesEl = document.getElementById("chat-messages");
@@ -37,15 +36,6 @@ initShell((user) => {
       );
     });
 
-  watchLive((kg) => {
-    liveContext.liveWeight = kg;
-  });
-  watchHistory((entries) => {
-    if (entries.length === 0) return;
-    liveContext.historyMin = Math.min(...entries);
-    liveContext.historyMax = Math.max(...entries);
-    liveContext.historyAvg = entries.reduce((a, b) => a + b, 0) / entries.length;
-  });
 });
 
 function clockString() {

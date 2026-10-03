@@ -1361,6 +1361,18 @@ a.avatar:hover {
   color: var(--ink-muted);
 }
 
+.last-online {
+  margin: 4px 0 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.last-online span {
+  color: var(--ink);
+}
+
 .last-update span {
   color: var(--live-ink);
 }

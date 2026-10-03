@@ -4,7 +4,7 @@ import { saveSession, formatDuration } from "./sessions.js";
 import { fmt, getUnit } from "./units.js";
 import { mountScale } from "./scene3d.js";
 import { createBluetooth, bluetoothSupported } from "./bluetooth.js";
-import { watchLive } from "./live-data.js";
+import { markSeen, readLastSeen, formatLastSeen } from "./last-seen.js";
 
 const $ = (id) => document.getElementById(id);
 const readingPanel  = $("reading-panel");
@@ -13,6 +13,7 @@ const unitEls       = document.querySelectorAll("[data-unit-label]");
 const statusDot     = $("status-dot");
 const statusText    = $("status-text");
 const lastUpdateEl  = $("last-update");
+const lastOnlineEl  = $("last-online");
 const recLabel      = $("rec-label");
 const peakBar       = $("peak-bar");
 const peakLeft      = $("peak-left");
@@ -46,7 +47,8 @@ let tareOffset      = 0;     // nol tampilan, hanya di browser ini
 let lastReceivedAt  = null;
 let session         = null;  // { start, sum, n, peak } selama merekam
 let durationTimer   = null;
-let btActive        = false; // true kalau data aktif dari BLE (prioritas > Firebase)
+let btActive        = false; // true selama Bluetooth tersambung
+let lastSeenTs      = null;  // kapan alat terakhir online (ms), dibaca dari akun
 
 const shownKg = () => (rawKg === null ? null : rawKg - tareOffset);
 
@@ -103,7 +105,13 @@ function render() {
     tareOffset !== 0 ? "[ Nol aktif: setel ulang ]" : "[ Tare / nol-kan tampilan ]";
 }
 
+function renderLastOnline() {
+  const online = lastReceivedAt !== null && Date.now() - lastReceivedAt < 5000;
+  lastOnlineEl.textContent = online ? "sekarang" : formatLastSeen(lastSeenTs);
+}
+
 function tickLastUpdate() {
+  renderLastOnline();
   if (!lastReceivedAt) return;
   const elapsed = Date.now() - lastReceivedAt;
   lastUpdateEl.textContent = formatElapsed(elapsed);
@@ -113,6 +121,8 @@ function tickLastUpdate() {
 function onReading(kg) {
   rawKg          = kg;
   lastReceivedAt = Date.now();
+  lastSeenTs     = lastReceivedAt;
+  markSeen(uid);
   readingPanel.classList.remove("is-waiting");
   const shown = shownKg();
   scale3d.setWeight(Math.max(shown, 0));
@@ -187,12 +197,6 @@ sessionBtn.addEventListener("click", () => {
   else startSession();
 });
 
-// ---- Firebase Realtime Database: fallback jika BLE tidak aktif ----
-watchLive(
-  (kg) => { if (!btActive) onReading(kg); },
-  (err) => console.warn("RTDB watchLive error:", err)
-);
-
 // ---- Bluetooth: bacaan realtime dari alat + tare/kalibrasi satu ketukan ----
 const GRAMS_KEY = "pm-cal-grams";
 try {
@@ -211,7 +215,9 @@ const bt = createBluetooth({
   },
   onState(s) {
     const connected = s === "connected";
-    btActive = connected; // kalau tersambung, matikan jalur Firebase
+    const wasConnected = btActive;
+    btActive = connected;
+    if (wasConnected && !connected) markSeen(uid, true); // catat waktu putus sebagai terakhir online
 
     btBtn.classList.toggle("is-connected", connected);
     btBtn.setAttribute("aria-pressed", String(connected));
@@ -322,6 +328,11 @@ document.addEventListener("unitchange", render);
 
 initShell((user) => {
   uid = user.uid;
+  readLastSeen(uid).then((ts) => {
+    if (ts && ts > (lastSeenTs || 0)) lastSeenTs = ts;
+    renderLastOnline();
+  });
   setInterval(tickLastUpdate, 1000);
+  renderLastOnline();
 });
 render();

@@ -1,6 +1,5 @@
 // Halaman Riwayat: tren puncak per hari/sesi, daftar sesi, dan 50 pembacaan sensor terakhir.
 import { initShell } from "./shell.js";
-import { watchHistory } from "./live-data.js";
 import { loadSessions, formatDuration } from "./sessions.js";
 import { fmt, getUnit } from "./units.js";
 
@@ -244,16 +243,6 @@ window.addEventListener("resize", () => {
 });
 
 initShell(async (user) => {
-  watchHistory(
-    (entries) => {
-      rawEntries = entries;
-      renderRaw();
-    },
-    () => {
-      rawEmptyEl.hidden = false;
-      rawEmptyEl.textContent = "Pembacaan sensor tidak bisa dibaca. Coba muat ulang halaman.";
-    }
-  );
   try {
     sessions = await loadSessions(user.uid);
   } catch (err) {
