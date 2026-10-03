@@ -71,6 +71,24 @@
         </div>
         <p class="last-update">Pembacaan terakhir: <span id="last-update">belum ada</span></p>
         <p class="last-online">Alat terakhir online: <span id="last-online">memuat</span></p>
+        <div class="side-grid" aria-label="Load cell kiri, kanan, total, dan puncak tekanan">
+          <div>
+            <p class="label">Kiri</p>
+            <p class="side-now"><span id="side-left">--.--</span> <small data-unit-label>kg</small></p>
+            <p class="side-peak">puncak <span id="side-left-peak">--.--</span></p>
+          </div>
+          <div>
+            <p class="label">Kanan</p>
+            <p class="side-now"><span id="side-right">--.--</span> <small data-unit-label>kg</small></p>
+            <p class="side-peak">puncak <span id="side-right-peak">--.--</span></p>
+          </div>
+          <div>
+            <p class="label">Total</p>
+            <p class="side-now"><span id="side-total">--.--</span> <small data-unit-label>kg</small></p>
+            <p class="side-peak">puncak <span id="side-total-peak">--.--</span></p>
+          </div>
+        </div>
+        <button type="button" id="peak-reset" class="text-btn side-reset">[ Reset puncak ]</button>
         <p class="waiting-note">Belum ada angka masuk. Nyalakan alat, tap tombol Bluetooth, lalu pilih Pluto AI.</p>
 
         <div class="peak-meter">
@@ -115,11 +133,6 @@
         <h2 class="label" id="bt-title">Alat &middot; Bluetooth</h2>
         <span class="label live-text" id="bt-live" hidden>Realtime</span>
       </div>
-      <dl class="bt-readouts" id="bt-readouts" hidden>
-        <div><dt>Kiri</dt><dd><span id="bt-left">--.--</span> <small data-unit-label>kg</small></dd></div>
-        <div><dt>Kanan</dt><dd><span id="bt-right">--.--</span> <small data-unit-label>kg</small></dd></div>
-        <div><dt>Total</dt><dd><span id="bt-total">--.--</span> <small data-unit-label>kg</small></dd></div>
-      </dl>
       <div class="bt-cal" id="bt-cal" hidden>
         <label class="bt-weight" for="bt-grams">
           <span class="label">Beban acuan</span>

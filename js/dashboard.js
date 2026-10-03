@@ -34,13 +34,15 @@ const btBtn         = $("bt-btn");
 const btBtnLabel    = $("bt-btn-label");
 const btPanel       = $("bt-panel");
 const btLive        = $("bt-live");
-const btReadouts    = $("bt-readouts");
 const btCal         = $("bt-cal");
 const btNote        = $("bt-note");
 const btGrams       = $("bt-grams");
-const btLeftEl      = $("bt-left");
-const btRightEl     = $("bt-right");
-const btTotalEl     = $("bt-total");
+const sideEls = {
+  left:  { now: $("side-left"),  peak: $("side-left-peak") },
+  right: { now: $("side-right"), peak: $("side-right-peak") },
+  total: { now: $("side-total"), peak: $("side-total-peak") },
+};
+const peakResetBtn  = $("peak-reset");
 const btActionBtns  = [$("bt-cal-left"), $("bt-cal-right"), $("bt-tare")];
 
 const scale3d = mountScale($("dash-stage"), { frame: "rig" });
@@ -52,6 +54,8 @@ let lastReceivedAt  = null;
 let session         = null;  // { start, sum, n, peak, points } selama alat merekam
 let durationTimer   = null;
 let btActive        = false; // true selama Bluetooth tersambung
+let sideKg          = null;  // { left, right, total } kg terakhir dari alat (tanpa nol tampilan)
+let sidePeaks       = { left: 0, right: 0, total: 0 }; // puncak tekanan sejak sesi dimulai / direset
 let lastSeenTs      = null;  // kapan alat terakhir online (ms), dibaca dari akun
 
 const shownKg = () => (rawKg === null ? null : rawKg - tareOffset);
@@ -99,8 +103,22 @@ function renderSessionRows() {
   durationEl.textContent  = formatDuration((Date.now() - session.start) / 1000);
 }
 
+function renderSides() {
+  for (const key of ["left", "right", "total"]) {
+    sideEls[key].now.textContent  = sideKg ? fmt(sideKg[key]) : "--.--";
+    sideEls[key].peak.textContent = sideKg ? fmt(sidePeaks[key]) : "--.--";
+  }
+}
+
+function resetPeaks() {
+  sidePeaks = { left: 0, right: 0, total: 0 };
+  if (sideKg) for (const key of ["left", "right", "total"]) sidePeaks[key] = sideKg[key];
+  renderSides();
+}
+
 function render() {
   unitEls.forEach((el) => (el.textContent = getUnit()));
+  renderSides();
   const kg = shownKg();
   if (kg !== null) weightValueEl.textContent = fmt(kg);
   renderPeakBar(kg);
@@ -146,6 +164,7 @@ function onReading(kg) {
 // benar kalau Record dimulai dari tombol Serial atau halaman ini dibuka saat alat sudah merekam.
 function beginSessionUI(elapsedSec = 0) {
   session = { start: Date.now() - elapsedSec * 1000, sum: 0, n: 0, peak: 0, points: [] };
+  resetPeaks(); // puncak per sisi dihitung dari awal sesi
   sessionBtn.classList.add("is-recording");
   sessionBtn.setAttribute("aria-pressed", "true");
   sessionLabel.textContent = "Akhiri sesi";
@@ -199,6 +218,8 @@ function describeRecordError(res) {
   return "Perintah gagal: " + res;
 }
 
+peakResetBtn.addEventListener("click", resetPeaks);
+
 sessionBtn.addEventListener("click", async () => {
   if (!bt.connected) {
     sessionNote.textContent = "Sambungkan alat dulu lewat tombol Bluetooth di kanan atas.";
@@ -225,9 +246,8 @@ const bt = createBluetooth({
     if (info.recording && !session) beginSessionUI(info.elapsed);
     else if (!info.recording && session) endSessionUI();
     // Update readout Bluetooth kiri/kanan/total
-    btLeftEl.textContent  = fmt(leftG  / 1000);
-    btRightEl.textContent = fmt(rightG / 1000);
-    btTotalEl.textContent = fmt((leftG + rightG) / 1000);
+    sideKg = { left: leftG / 1000, right: rightG / 1000, total: (leftG + rightG) / 1000 };
+    for (const key of ["left", "right", "total"]) sidePeaks[key] = Math.max(sidePeaks[key], sideKg[key]);
     // Gunakan total sebagai sumber utama (lebih cepat dari Firebase)
     onReading((leftG + rightG) / 1000);
   },
@@ -248,7 +268,6 @@ const bt = createBluetooth({
 
     // Tampilkan panel BT jika tersambung ATAU ada pesan
     btLive.hidden    = !connected;
-    btReadouts.hidden = !connected;
     btCal.hidden     = !connected;
     btPanel.hidden   = !connected && !btNote?.textContent;
 
