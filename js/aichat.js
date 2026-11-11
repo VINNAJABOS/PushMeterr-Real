@@ -1,4 +1,5 @@
 // Halaman Plato AI: chat ke Gemini dengan konteks data sensor dan streak asli.
+// https://meterr-id.web.app
 import { askPlatoAI } from "./gemini-config.js";
 import { initShell } from "./shell.js";
 import { touchStreak } from "./streak.js";
